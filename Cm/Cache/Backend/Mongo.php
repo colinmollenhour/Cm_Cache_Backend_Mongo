@@ -381,7 +381,7 @@ class Cm_Cache_Backend_Mongo extends Zend_Cache_Backend implements Zend_Cache_Ba
      */
     protected function _getField($id, $field)
     {
-        $query = array('_id' => $id, self::FIELD_EXPIRE => array('$not' => array('$lt' => new MongoDate)));
+        $query = array('_id' => $id);
         try {
             $doc = $this->_collection->findOne($query, array($field => 1));
             if ($doc) {

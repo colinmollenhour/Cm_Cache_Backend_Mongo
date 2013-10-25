@@ -1,50 +1,43 @@
-Zend_Cache_Backend_Mongo
+Cm_Cache_Backend_Mongo
 ============
-:Author: Anton Stöckl <anton@stoeckl.de>
+:Author: Colin Mollenhour
 
 About
 =====
-**Zend_Cache_Backend_Mongo** is a `Zend Framework <http://zendframework.com/> Backend for `MongoDB <http://www.mongodb.org/>.
-It supports tags and autocleaning.
+**Cm_Cache_Backend_Mongo** is a `Zend Framework <http://zendframework.com/> backend using `MongoDB <http://www.mongodb.org/>.
+It supports tags and does not need autocleaning thanks to MongoDb's TTL collections.
 
 Dependencies
 ============
-**Zend_Cache_Backend_Mongo** requires the MongoDB database version 1.1.1 or above as it use MapReduce for some features.
-It has been tested with database version 2.0.0 and 2.0.1.
+**Cm_Cache_Backend_Mongo** requires the MongoDB database version 2.2 or newer and the PECL mongo driver 1.4 or newer.
 
 Installation
 ============
 
-See http://framework.zend.com/manual/en/zend.cache.backends.html about how to add a new Backend for Zend_Cache
+Use modman, composer or manually copy Mongo.php into a path in the include path under Cm/Cache/Backend/.
 
 Configuration
 =============
 
-See http://framework.zend.com/manual/en/zend.cache.backends.html about how to configure cache backends.
 Constructor options for this backend:
 
-Associative array with following fields:
-
-'host' => (string) : the name of the mongodb server
-'port' => (int) : the port of the mongodb server
-'persistent' => (bool) : use or not persistent connections to this mongodb server
-'collection' => (string) : name of the collection to use
-'dbname' => (string) : name of the database to use
+* server         => (string) MongoClient server connection string
+* dbname         => (string) Name of the database to use
+* collection     => (string) Name of the collection to use
+* ensure_index   => (bool)   Ensure indexes exist after each connection (can disable after indexes exist)
 
 Credits
 =======
 
 :Original Author: Olivier Bregeras <olivier.bregeras@gmail.com>
+:Original Author: Anton Stöckl <anton@stoeckl.de>
 
-Changes against original version from Stunti
+Changes against original version from Stunti/Anton
 ============================================
 
-- fixed function getTags() as the map reduce syntax was wrong (for MongoDB 2.0.0)
-- added indexes for optimal performance
-- added field 'expire' so that cleaning with Zend_Cache::CLEANING_MODE_OLD does not need to have a function
-- removed the tests and the queue folder
+- Completely rewritten to use fewer and more efficient queries and to pass unit tests.
 
 License
 =======
-**Zend_Cache_Backend_Mongo** is licensed under the New BSD License http://framework.zend.com/license/new-bsd
+**Cm_Cache_Backend_Mongo** is licensed under the New BSD License http://framework.zend.com/license/new-bsd
 See *LICENSE* for details.

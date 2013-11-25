@@ -88,7 +88,7 @@ class Cm_Cache_Backend_Mongo extends Zend_Cache_Backend implements Zend_Cache_Ba
      */
     public function load($id, $doNotTestCacheValidity = false)
     {
-        return $this->_getField($id, self::FIELD_DATA);
+        return $this->_getField($id, self::FIELD_DATA, $doNotTestCacheValidity);
     }
     
     /**
@@ -99,7 +99,7 @@ class Cm_Cache_Backend_Mongo extends Zend_Cache_Backend implements Zend_Cache_Ba
      */
     public function test($id)
     {
-        $modified = $this->_getField($id, self::FIELD_MODIFIED);
+        $modified = $this->_getField($id, self::FIELD_MODIFIED, FALSE);
         return $modified ? $modified->sec : FALSE;
     }
 
@@ -287,7 +287,7 @@ class Cm_Cache_Backend_Mongo extends Zend_Cache_Backend implements Zend_Cache_Ba
      */    
     public function touch($id, $extraLifetime)
     {
-        $expire = $this->_getField($id, self::FIELD_EXPIRE);
+        $expire = $this->_getField($id, self::FIELD_EXPIRE, FALSE);
         if ($expire) {
             $expire->sec += $extraLifetime;
             return $this->_update($id, array('$set' => array(self::FIELD_EXPIRE => $expire)));
@@ -377,11 +377,15 @@ class Cm_Cache_Backend_Mongo extends Zend_Cache_Backend implements Zend_Cache_Ba
     /**
      * @param string $id
      * @param string $field
+     * @param bool $doNotTestCacheValidity
      * @return bool|string|MongoDate
      */
-    protected function _getField($id, $field)
+    protected function _getField($id, $field, $doNotTestCacheValidity)
     {
         $query = array('_id' => $id);
+        if ( ! $doNotTestCacheValidity) {
+            $query[self::FIELD_EXPIRE] = array('$not' => array('$lt' => new MongoDate));
+        }
         try {
             $doc = $this->_collection->findOne($query, array($field => 1));
             if ($doc) {

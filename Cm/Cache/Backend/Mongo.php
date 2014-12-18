@@ -39,7 +39,7 @@ class Cm_Cache_Backend_Mongo extends Zend_Cache_Backend implements Zend_Cache_Ba
         'server'     => self::DEFAULT_SERVER, // See http://us1.php.net/manual/en/mongoclient.construct.php
         'dbname'     => self::DEFAULT_DBNAME,
         'collection' => self::DEFAULT_COLLECTION,
-        'ensure_index' => TRUE,
+        'ensure_index' => TRUE
     );
 
     /**
@@ -330,6 +330,13 @@ class Cm_Cache_Backend_Mongo extends Zend_Cache_Backend implements Zend_Cache_Ba
     protected function _update($id, $data, $options = array())
     {
         try {
+        	
+        	if (is_array($data)) {
+	        	array_walk_recursive($data, array($this, 'checkUtf8OnSave'));
+        	} else {
+        		$this->checkUtf8OnSave($data);
+        	}
+        	
             $result = $this->_collection->update(array('_id' => $id), $data, $options);
             if ($result === TRUE || $result['ok']) {
                 return TRUE;
@@ -337,6 +344,13 @@ class Cm_Cache_Backend_Mongo extends Zend_Cache_Backend implements Zend_Cache_Ba
         } catch (Exception $e) {
         }
         return FALSE;
+    }
+    
+    public function checkUtf8OnSave(&$value)
+    {
+    	if (!preg_match('!!u', $value)) {
+    		$value = new MongoBinData($value);
+    	}
     }
 
     /**
@@ -389,11 +403,24 @@ class Cm_Cache_Backend_Mongo extends Zend_Cache_Backend implements Zend_Cache_Ba
         try {
             $doc = $this->_collection->findOne($query, array($field => 1));
             if ($doc) {
+            	if (is_array($doc[$field])) {
+	            	array_walk_recursive($doc[$field], array($this, 'checkUtf8OnLoad'));
+            	} else {
+            		$this->checkUtf8OnLoad($doc[$field]);
+            	}
                 return $doc[$field];
             }
         } catch (Exception $e) {
         }
         return FALSE;
     }
+    
+    public function checkUtf8OnLoad(&$value)
+    {
+    	if ($value instanceof MongoBinData) {
+    		$value = $value->bin;
+    	}
+    }
+    
 
 }

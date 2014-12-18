@@ -39,8 +39,7 @@ class Cm_Cache_Backend_Mongo extends Zend_Cache_Backend implements Zend_Cache_Ba
         'server'     => self::DEFAULT_SERVER, // See http://us1.php.net/manual/en/mongoclient.construct.php
         'dbname'     => self::DEFAULT_DBNAME,
         'collection' => self::DEFAULT_COLLECTION,
-        'ensure_index' => TRUE,
-    	'check_utf8'	=> FALSE
+        'ensure_index' => TRUE
     );
 
     /**

@@ -332,7 +332,11 @@ class Cm_Cache_Backend_Mongo extends Zend_Cache_Backend implements Zend_Cache_Ba
     {
         try {
         	
-        	array_walk_recursive($data, array($this, 'checkUtf8OnSave'));
+        	if (is_array($data)) {
+	        	array_walk_recursive($data, array($this, 'checkUtf8OnSave'));
+        	} else {
+        		$this->checkUtf8OnSave($data);
+        	}
         	
             $result = $this->_collection->update(array('_id' => $id), $data, $options);
             if ($result === TRUE || $result['ok']) {

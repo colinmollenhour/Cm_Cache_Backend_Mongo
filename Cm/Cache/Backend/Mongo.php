@@ -53,7 +53,7 @@ class Cm_Cache_Backend_Mongo extends Zend_Cache_Backend implements Zend_Cache_Ba
             Zend_Cache::throwException('The MongoDB extension must be loaded for using this backend !');
         }
         parent::__construct($options);
-        
+
         $this->_conn       = new MongoClient($this->_options['server']);
         $this->_db         = $this->_conn->selectDB($this->_options['dbname']);
         $this->_collection = $this->_db->selectCollection($this->_options['collection']);
@@ -117,7 +117,7 @@ class Cm_Cache_Backend_Mongo extends Zend_Cache_Backend implements Zend_Cache_Ba
     {
         $lifetime = $this->getLifetime($specificLifetime);
         $data = array(
-            self::FIELD_DATA => $data,
+            self::FIELD_DATA => is_string($data) ? new MongoBinData($data) : $data,
             self::FIELD_TAGS => $tags,
             self::FIELD_MODIFIED => new MongoDate,
         );
@@ -392,6 +392,9 @@ class Cm_Cache_Backend_Mongo extends Zend_Cache_Backend implements Zend_Cache_Ba
         try {
             $doc = $this->_collection->findOne($query, array($field => 1));
             if ($doc) {
+                if ($doc[$field] instanceof MongoBinData) {
+                    return $doc[$field]->bin;
+                }
                 return $doc[$field];
             }
         } catch (Exception $e) {

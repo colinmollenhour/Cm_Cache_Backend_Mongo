@@ -24,7 +24,14 @@ Constructor options for this backend:
 * server         => (string) MongoClient server connection string
 * dbname         => (string) Name of the database to use
 * collection     => (string) Name of the collection to use
-* ensure_index   => (bool)   Ensure indexes exist after each connection (can disable after indexes exist)
+* ensure_tag_index => (bool) Ensure tag index exists after each connection. Default is FALSE.
+* ensure_expire_index => (bool) Ensure tag index exists after each connection Default is TRUE. (can disable after indexes exist)
+
+The expire index is required for automatic cleaning to occur using MongoDB's TTL feature. The tag index is not required
+and in fact has very poor performance when keys have a large number of high-cardinality tags. So, depending on your use-case
+you may not want the tag index so it is disabled by default. Both "ensure" options can be disabled after the first run since the
+index only needs to be created once. Disabling the "ensure" flags does not delete the index so to remove them you must do so
+manually; for example using the mongo client and the dropIndex command.
 
 Credits
 =======

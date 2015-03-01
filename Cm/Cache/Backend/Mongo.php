@@ -39,7 +39,8 @@ class Cm_Cache_Backend_Mongo extends Zend_Cache_Backend implements Zend_Cache_Ba
         'server'     => self::DEFAULT_SERVER, // See http://us1.php.net/manual/en/mongoclient.construct.php
         'dbname'     => self::DEFAULT_DBNAME,
         'collection' => self::DEFAULT_COLLECTION,
-        'ensure_index' => TRUE,
+        'ensure_tag_index' => FALSE,
+        'ensure_expire_index' => TRUE,
     );
 
     /**
@@ -57,11 +58,13 @@ class Cm_Cache_Backend_Mongo extends Zend_Cache_Backend implements Zend_Cache_Ba
         $this->_db         = $this->_conn->selectDB($this->_options['dbname']);
         $this->_collection = $this->_db->selectCollection($this->_options['collection']);
 
-        if ($this->_options['ensure_index']) {
+        if ($this->_options['ensure_tag_index']) {
             $this->_collection->ensureIndex(
                 array(self::FIELD_TAGS => 1),
                 array('background' => true)
             );
+        }
+        if ($this->_options['ensure_expire_index']) {
             $this->_collection->ensureIndex(
                 array(self::FIELD_EXPIRE => 1),
                 array('background' => true, 'expireAfterSeconds' => 0)
